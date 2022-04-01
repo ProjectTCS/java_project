@@ -28,7 +28,39 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'   
-          
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN:  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 ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: 3567cfae5e3564728e3096587592525aa8a2267b ${{ secrets.SONAR_TOKEN }}  
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=projecttcs
+
+      # - name: Step 3- Cache SonarCloud packages
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ~/.sonar/cache
+      #     key: ${{ runner.os }}-sonar
+      #     restore-keys: ${{ runner.os }}-sonar
+
+      # - name: Step 2 - build with maven
+      #   run: mvn -B package --file pom.xml  
+
+      # - name: Sonar Code analyze
+      #   env:
+      #     GITHUB_TOKEN: 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
+      #     SONAR_TOKEN: 3567cfae5e3564728e3096587592525aa8a2267b
+      #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=projecttcs    
     
 
       # Runs a single command using the runners shell
